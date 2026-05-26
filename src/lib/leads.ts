@@ -5,6 +5,16 @@ type LeadPayload = {
   objetivo: string;
 };
 
+export type Lead = {
+  id?: string;
+  created_at?: string;
+  nome: string;
+  whatsapp: string;
+  empresa?: string;
+  objetivo?: string;
+  source?: string;
+};
+
 type SaveLeadResult =
   | { status: "saved" }
   | { status: "skipped"; reason: "missing-config" };
@@ -13,20 +23,30 @@ function cleanText(value: string): string {
   return value.trim().slice(0, 1000);
 }
 
-export async function saveLead(payload: LeadPayload): Promise<SaveLeadResult> {
+function getSupabaseConfig() {
   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
   const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
   const tableName = import.meta.env.VITE_SUPABASE_LEADS_TABLE || "leads";
 
   if (!supabaseUrl || !supabaseAnonKey) {
+    return null;
+  }
+
+  return { supabaseUrl, supabaseAnonKey, tableName };
+}
+
+export async function saveLead(payload: LeadPayload): Promise<SaveLeadResult> {
+  const config = getSupabaseConfig();
+
+  if (!config) {
     return { status: "skipped", reason: "missing-config" };
   }
 
-  const response = await fetch(`${supabaseUrl}/rest/v1/${tableName}`, {
+  const response = await fetch(`${config.supabaseUrl}/rest/v1/${config.tableName}`, {
     method: "POST",
     headers: {
-      apikey: supabaseAnonKey,
-      authorization: `Bearer ${supabaseAnonKey}`,
+      apikey: config.supabaseAnonKey,
+      authorization: `Bearer ${config.supabaseAnonKey}`,
       "content-type": "application/json",
       prefer: "return=minimal",
     },
@@ -44,4 +64,28 @@ export async function saveLead(payload: LeadPayload): Promise<SaveLeadResult> {
   }
 
   return { status: "saved" };
+}
+
+export async function listLeads(): Promise<Lead[]> {
+  const config = getSupabaseConfig();
+
+  if (!config) {
+    throw new Error("Supabase environment variables are not configured.");
+  }
+
+  const response = await fetch(
+    `${config.supabaseUrl}/rest/v1/${config.tableName}?select=*&order=created_at.desc`,
+    {
+      headers: {
+        apikey: config.supabaseAnonKey,
+        authorization: `Bearer ${config.supabaseAnonKey}`,
+      },
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error("Could not load leads.");
+  }
+
+  return (await response.json()) as Lead[];
 }

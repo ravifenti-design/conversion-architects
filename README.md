@@ -39,6 +39,16 @@ Depois configure as variáveis:
 VITE_SUPABASE_URL=https://seu-projeto.supabase.co
 VITE_SUPABASE_ANON_KEY=sua-chave-anon-publica
 VITE_SUPABASE_LEADS_TABLE=leads
+VITE_ADMIN_LEADS_USER=admin
+VITE_ADMIN_LEADS_PASSWORD=troque-essa-senha
 ```
 
 Se essas variáveis não estiverem configuradas, o formulário ainda abre o WhatsApp, mas não salva o lead no banco.
+
+## Painel de leads
+
+Acesse `/adminleads` no mesmo domínio da landing para ver os leads em tabela.
+O painel usa `VITE_ADMIN_LEADS_USER` e `VITE_ADMIN_LEADS_PASSWORD` para o login simples.
+
+Importante: esse login é uma proteção simples no front-end. Para dados sensíveis ou maior segurança,
+use Supabase Auth ou uma área administrativa protegida por autenticação real.
