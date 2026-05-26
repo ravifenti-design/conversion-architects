@@ -369,7 +369,7 @@ function Comparison() {
           }
           centered
         />
-        <div className="mt-14 grid items-start gap-6 md:grid-cols-2">
+        <div className="mt-14 grid gap-6 md:grid-cols-2">
           <div className="relative rounded-2xl border border-primary/40 bg-background p-8 shadow-[var(--shadow-glow)]">
             <div className="absolute -top-3 right-6 rounded-full bg-primary px-3 py-1 text-xs font-bold text-primary-foreground">
               Recomendado
@@ -388,20 +388,6 @@ function Comparison() {
                 </li>
               ))}
             </ul>
-            <div className="mt-8 rounded-2xl border border-primary/50 bg-primary/10 p-6 text-center backdrop-blur">
-              <p className="text-left text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-                A partir de
-              </p>
-              <p className="mt-1 w-full whitespace-nowrap text-center text-[3rem] font-black leading-none tracking-tight text-primary sm:text-[3.5rem] lg:text-[4rem]">
-                R$ 899,00
-              </p>
-              <Button asChild size="lg" className="mt-6 h-12 w-full text-base font-bold">
-                <a href="#orcamento">
-                  Garantir a minha agora
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </a>
-              </Button>
-            </div>
           </div>
           <div className="rounded-2xl border border-border bg-background p-8">
             <div className="mb-6 flex items-center gap-3">
