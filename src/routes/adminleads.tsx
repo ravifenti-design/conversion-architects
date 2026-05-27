@@ -1,16 +1,14 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, MessageCircle, RefreshCw, Trash2 } from "lucide-react";
+import { ArrowLeft, LockKeyhole, LogOut, MessageCircle, RefreshCw, Trash2 } from "lucide-react";
+import type { FormEvent } from "react";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { type Lead, clearAdminLeads, listAdminLeads } from "@/lib/leads";
 
-export const Route = createFileRoute("/adminleads")({
-  component: AdminLeads,
-  head: () => ({
-    meta: [{ title: "Admin Leads | VOC Comunicações" }],
-  }),
-});
+const ADMIN_USERNAME = "admin";
+const ADMIN_PASSWORD = "voc2026";
+const ADMIN_SESSION_KEY = "voc-admin-authenticated";
 
 function normalizePhone(phone: string): string {
   const digits = phone.replace(/\D/g, "");
@@ -26,11 +24,37 @@ function formatDate(value?: string): string {
   }).format(new Date(value));
 }
 
-function AdminLeads() {
+export default function AdminLeads() {
   const [leads, setLeads] = useState<Lead[]>([]);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [loginError, setLoginError] = useState("");
 
   async function loadLeads() {
     setLeads(await listAdminLeads());
+  }
+
+  function handleLogin(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (username.trim() !== ADMIN_USERNAME || password !== ADMIN_PASSWORD) {
+      setLoginError("Usuário ou senha incorretos.");
+      return;
+    }
+
+    window.sessionStorage.setItem(ADMIN_SESSION_KEY, "true");
+    setIsAuthenticated(true);
+    setLoginError("");
+    setPassword("");
+  }
+
+  function handleLogout() {
+    window.sessionStorage.removeItem(ADMIN_SESSION_KEY);
+    setIsAuthenticated(false);
+    setLeads([]);
+    setUsername("");
+    setPassword("");
   }
 
   async function handleClear() {
@@ -39,8 +63,75 @@ function AdminLeads() {
   }
 
   useEffect(() => {
-    void loadLeads();
+    if (window.sessionStorage.getItem(ADMIN_SESSION_KEY) === "true") {
+      setIsAuthenticated(true);
+    }
   }, []);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      void loadLeads();
+    }
+  }, [isAuthenticated]);
+
+  if (!isAuthenticated) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-background px-6 py-10 text-foreground">
+        <div className="w-full max-w-md rounded-2xl border border-border bg-card p-8 shadow-[var(--shadow-card)]">
+          <Button asChild variant="ghost" className="-ml-3 mb-6">
+            <a href="/">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Voltar para a landing
+            </a>
+          </Button>
+
+          <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+            <LockKeyhole className="h-6 w-6" />
+          </div>
+          <h1 className="text-3xl font-bold tracking-tight">Acesso aos leads</h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Entre com usuário e senha para visualizar os contatos recebidos.
+          </p>
+
+          <form onSubmit={handleLogin} className="mt-8 space-y-4">
+            <div>
+              <label htmlFor="admin-username" className="mb-2 block text-sm font-semibold">
+                Usuário
+              </label>
+              <Input
+                id="admin-username"
+                autoComplete="username"
+                value={username}
+                onChange={(event) => setUsername(event.target.value)}
+                placeholder="Digite o usuário"
+              />
+            </div>
+            <div>
+              <label htmlFor="admin-password" className="mb-2 block text-sm font-semibold">
+                Senha
+              </label>
+              <Input
+                id="admin-password"
+                type="password"
+                autoComplete="current-password"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                placeholder="Digite a senha"
+              />
+            </div>
+            {loginError && (
+              <p className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                {loginError}
+              </p>
+            )}
+            <Button type="submit" className="h-11 w-full font-semibold">
+              Entrar
+            </Button>
+          </form>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-background px-6 py-10 text-foreground">
@@ -48,10 +139,10 @@ function AdminLeads() {
         <div className="flex flex-col gap-4 border-b border-border pb-6 md:flex-row md:items-center md:justify-between">
           <div>
             <Button asChild variant="ghost" className="-ml-3 mb-4">
-              <Link to="/">
+              <a href="/">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Voltar para a landing
-              </Link>
+              </a>
             </Button>
             <h1 className="text-3xl font-bold tracking-tight">Leads recebidos</h1>
             <p className="mt-2 text-sm text-muted-foreground">
@@ -67,6 +158,10 @@ function AdminLeads() {
             <Button onClick={handleClear} variant="outline">
               <Trash2 className="mr-2 h-4 w-4" />
               Limpar lista
+            </Button>
+            <Button onClick={handleLogout} variant="outline">
+              <LogOut className="mr-2 h-4 w-4" />
+              Sair
             </Button>
           </div>
         </div>

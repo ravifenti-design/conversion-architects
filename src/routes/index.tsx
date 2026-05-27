@@ -1,4 +1,3 @@
-import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import {
   ArrowRight,
@@ -38,33 +37,13 @@ import heroGrid5 from "@/assets/hero-grid-5.png";
 import landingPagesShowcase from "@/assets/landing-pages-showcase.png";
 import vocLogo from "@/assets/voc-logo-white.png";
 
-export const Route = createFileRoute("/")({
-  component: Index,
-  head: () => ({
-    meta: [
-      { title: "VOC Comunicações — Landing Pages de Alta Conversão" },
-      {
-        name: "description",
-        content:
-          "Criamos landing pages estratégicas para tráfego pago, captação de leads e aumento de vendas. Pare de perder dinheiro com páginas ruins.",
-      },
-      { property: "og:title", content: "VOC Comunicações — Landing Pages que Vendem" },
-      {
-        property: "og:description",
-        content:
-          "Transforme cliques em clientes. Landing pages feitas para converter campanhas de tráfego pago.",
-      },
-    ],
-  }),
-});
-
 const WHATSAPP_URL =
   "https://wa.me/5517991966086?text=Quero%20uma%20landing%20page%20que%20venda%20mais";
 const CONTACT_PHONE = "+55 17 99196-6086";
 const CONTACT_PHONE_URL = "tel:+5517991966086";
 const CONTACT_EMAIL = "communicationsvoc@gmail.com";
 
-function Index() {
+export default function Index() {
   return (
     <div className="min-h-screen bg-background text-foreground antialiased">
       <Toaster theme="dark" position="top-center" />
