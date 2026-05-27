@@ -66,10 +66,6 @@ export async function saveLead(payload: LeadPayload): Promise<SaveLeadResult> {
   return { status: "saved" };
 }
 
-export async function listLeads(): Promise<Lead[]> {
-  throw new Error("Use listAdminLeads with admin credentials.");
-}
-
 export async function listAdminLeads(username: string, password: string): Promise<Lead[]> {
   const functionUrl = import.meta.env.VITE_ADMIN_LEADS_FUNCTION_URL;
 
